@@ -1,6 +1,15 @@
+/**
+ * hello.c
+ *
+ * Jake Craige
+ * james.craige+c@gmail.com
+ *
+ * Say helloooo
+ */
+
 #include <stdio.h>
 
-int main()
+int main(void)
 {
-  printf("hello, world\n");
+    printf("hello, world\n");
 }
