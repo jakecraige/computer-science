@@ -1,3 +1,12 @@
+/**
+ * vigenere.c
+ *
+ * Jake Craige
+ * james.craige+c@gmail.com
+ *
+ * Implementation of vigenere encryption algorithm.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,7 +19,8 @@ bool AllAlpha(string s);
 
 int main(int argc, string argv[])
 {
-    if (argc != 2 || !AllAlpha(argv[1])) {
+    if (argc != 2 || !AllAlpha(argv[1]))
+    {
         printf("Error: Argument must be all alpha characters.\n");
         return 1;
     }
@@ -24,6 +34,10 @@ int main(int argc, string argv[])
     return 0;
 }
 
+/*
+ * Takes a string to encrypt and the key
+ * and runs the encryption on it
+ */
 string EncryptString(string input, string key)
 {
     int inputLength = strlen(input);
@@ -37,7 +51,8 @@ string EncryptString(string input, string key)
         {
             output[i] = EncryptChar(c, key[k]);
             k++;
-            if (k > (keyLength - 1)) {
+            if (k > (keyLength - 1))
+            {
                 k = 0;
             }
         }
@@ -50,6 +65,9 @@ string EncryptString(string input, string key)
     return output;
 }
 
+/*
+ * Encrypts a single char given a key
+ */
 char EncryptChar(char c, char key)
 {
     int charStartLetter = isupper(c) ? 'A' : 'a';
@@ -59,10 +77,15 @@ char EncryptChar(char c, char key)
     return charStartLetter + encrypedCharIndex;
 }
 
+/*
+ * Returns whether a string is all alpha chars or not
+ */
 bool AllAlpha(string s)
 {
-    for (int i = 0, n = strlen(s); i < n; i++) {
-        if (!isalpha(s[i])) {
+    for (int i = 0, n = strlen(s); i < n; i++)
+    {
+        if (!isalpha(s[i]))
+        {
             return false;
         }
     }
