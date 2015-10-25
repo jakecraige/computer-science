@@ -9,6 +9,11 @@ char EncryptChar(char c, int key);
 
 int main(int argc, string argv[])
 {
+    if (argc != 2) {
+        printf("Error: Number argument required.\n");
+        return 1;
+    }
+
     int key = atoi(argv[1]);
     string input = GetString();
 
