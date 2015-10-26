@@ -8,6 +8,7 @@
  */
 
 #include <cs50.h>
+#include <stdio.h>
 
 #include "helpers.h"
 
@@ -36,6 +37,19 @@ bool search(int value, int values[], int n)
  */
 void sort(int values[], int n)
 {
-    // TODO: implement an O(n^2) sorting algorithm
-    return;
+    int smallestIdx;
+    for (int i = 0; i < n; i++)
+    {
+        smallestIdx = i;
+        for (int j = i; j < n; j++)
+        {
+            if (values[j] < values[smallestIdx])
+            {
+                smallestIdx = j;
+            }
+        }
+        int temp = values[smallestIdx];
+        values[smallestIdx] = values[i];
+        values[i] = temp;
+    }
 }
