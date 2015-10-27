@@ -13,6 +13,34 @@
 #include "helpers.h"
 
 /**
+ * Returns true if value is in array of between startIdx and endIdx, else false.
+ */
+bool binarysearch(int value, int values[], int startIdx, int endIdx)
+{
+    // We've looped back around and thus there's no match.
+    if (startIdx > endIdx) {
+        return false;
+    }
+
+    int middle = (startIdx + endIdx) / 2;
+    if (values[middle] == value)
+    {
+        return true;
+    }
+    else if (value < values[middle])
+    {
+        return binarysearch(value, values, 0, middle - 1);
+    }
+    else if (value > values[middle])
+    {
+        return binarysearch(value, values, middle + 1, endIdx);
+    }
+    else {
+        return false;
+    }
+}
+
+/**
  * Returns true if value is in array of n values, else false.
  */
 bool search(int value, int values[], int n)
@@ -22,14 +50,7 @@ bool search(int value, int values[], int n)
         return false;
     }
 
-    for (int i = 0; i < n; i++) {
-        if (values[i] == value)
-        {
-            return true;
-        }
-    }
-
-    return false;
+    return binarysearch(value, values, 0, n);
 }
 
 /**
