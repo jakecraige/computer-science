@@ -1,19 +1,30 @@
-0.  TODO
-1.  TODO
-2.  TODO
-3.  TODO
-4.  TODO
-5.  TODO
-6.  TODO
-7.  TODO
-8.  TODO
-9.  TODO
-10. TODO
-11. TODO
-12. TODO
-13. TODO
-14. TODO
-15. TODO
-16. TODO
-17. TODO
+0.  GIF 256
+    JPG 16 million
+    PNG 256 teracolors
+    BMP 16 million
+1.  GIF
+2.  Lossy loses quality, lossless maintains the full quality
+3.  JPG
+4.  It first renames the first character in the file's directory entry which
+    marks it as deleted. It the moves the files "FAT clusters" to the available
+    free clusters on the HD.
+5.  Physically destroy the disk, override each block with a random character,
+    run it through a degausser.
+6.  stdint.h includes "fixed width integer types" that is useful to have
+    consistent integer sizing across different environments.
+7.  Using those types guarantees that any integers defined with them use the
+    same number of bits across all implementations.
+8.  8 bits, 32 bits, 32 bits, 16 bits
+9.  0x42 0x4d
+10. bfSize is the size of the bitmap file, biSize is the number of bytes
+    required by the structure.
+11. The DIB is top-down and and the biCompression must be BI_RGB or BI_BITFIELDS
+12. biBitCount
+13. You don't have permissions to read/create the file or out of memory.
+14. We want to read a section of X bytes or fail if it can't. The 1 means to
+    read a full section of X bytes.
+15. 4
+16. It moves you forward in a file offset bytes. This is useful to skip over
+    a section of the file you don't care about.
+17. The current position indicator. Where you are currently at in a file.
 18. TODO
