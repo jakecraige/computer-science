@@ -13,6 +13,10 @@
 
 #include "bmp.h"
 
+int isRedish(RGBTRIPLE* color);
+void setWhite(RGBTRIPLE* color);
+void setBlack(RGBTRIPLE* color);
+
 int main(int argc, char* argv[])
 {
     // ensure proper usage
@@ -82,6 +86,15 @@ int main(int argc, char* argv[])
             // read RGB triple from infile
             fread(&triple, sizeof(RGBTRIPLE), 1, inptr);
 
+            if (isRedish(&triple))
+            {
+                setWhite(&triple);
+            }
+            else
+            {
+                setBlack(&triple);
+            }
+
             // write RGB triple to outfile
             fwrite(&triple, sizeof(RGBTRIPLE), 1, outptr);
         }
@@ -104,4 +117,23 @@ int main(int argc, char* argv[])
 
     // that's all folks
     return 0;
+}
+
+void setWhite(RGBTRIPLE* color)
+{
+    color->rgbtRed = 0xff;
+    color->rgbtBlue = 0xff;
+    color->rgbtGreen = 0xff;
+}
+
+void setBlack(RGBTRIPLE* color)
+{
+    color->rgbtRed = 0x00;
+    color->rgbtBlue = 0x00;
+    color->rgbtGreen = 0x00;
+}
+
+int isRedish(RGBTRIPLE* color)
+{
+    return color->rgbtRed > 235;
 }
