@@ -11,6 +11,11 @@
 #include <math.h>
 #include "bmp.h"
 
+BITMAPINFOHEADER calculateResizedInfoHeader(BITMAPINFOHEADER* bi, int resizeFactor);
+int getPadding(BITMAPINFOHEADER* bi);
+void readLine(FILE* infile, int biWidth, RGBTRIPLE* linePixels);
+void writeLine(FILE* outfile, int biWidth, int resizeFactor, int outPadding, RGBTRIPLE* linePixels);
+
 int main(int argc, char* argv[])
 {
     if (argc < 4)
@@ -19,10 +24,7 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    // ./resize 4 small.bmp resized-large.bmp
-
     int resizeFactor = atoi(argv[1]);
-    printf("%i", resizeFactor);
     FILE* infile = fopen(argv[2], "r");
     FILE* outfile = fopen(argv[3], "w");
 
@@ -58,53 +60,77 @@ int main(int argc, char* argv[])
     }
 
     BITMAPFILEHEADER outbf = bf;
-    BITMAPINFOHEADER outbi = bi;
+    BITMAPINFOHEADER outbi = calculateResizedInfoHeader(&bi, resizeFactor);
 
-    outbi.biWidth = bi.biWidth * resizeFactor;
-    outbi.biHeight = bi.biHeight * resizeFactor;
-    outbi.biSizeImage = bi.biSizeImage * resizeFactor;
-    outbf.bfSize = outbi.biSizeImage + sizeof(BITMAPFILEHEADER);
+    int inPadding = getPadding(&bi);
+    int outPadding = getPadding(&outbi);
+
+    // (Byte size of width + the padding) * height
+    outbi.biSizeImage = abs(outbi.biHeight) * ((outbi.biWidth * sizeof(RGBTRIPLE)) + outPadding);
+    // Original bf size minus it's image + new biSizeImage
+    outbf.bfSize = (bf.bfSize - bi.biSizeImage) + outbi.biSizeImage;
 
     fwrite(&outbf, sizeof(BITMAPFILEHEADER), 1, outfile);
     fwrite(&outbi, sizeof(BITMAPINFOHEADER), 1, outfile);
 
-    int inPadding =  (4 - (bi.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
-    int outPadding =  (4 - (outbi.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
-
     for(int i = 0, biHeight = abs(bi.biHeight); i < biHeight; i++)
     {
-        RGBTRIPLE line[bi.biWidth];
-
-        for (int j = 0; j < bi.biWidth; j++)
-        {
-            RGBTRIPLE triple;
-
-            fread(&triple, sizeof(RGBTRIPLE), 1, infile);
-
-            line[j] = triple;
-        }
+        RGBTRIPLE linePixels[bi.biWidth];
+        readLine(infile, bi.biWidth, linePixels);
 
         fseek(infile, inPadding, SEEK_CUR);
 
-        for (int r = 0; r < resizeFactor; r++)
+        for (int j = 0; j < resizeFactor; j++)
         {
-            for (int j = 0; j < bi.biWidth; j++)
-            {
-                for (int k = 0; k < resizeFactor; k++)
-                {
-                    fwrite(&line[j], sizeof(RGBTRIPLE), 1, outfile);
-                }
-            }
-
-            for (int k = 0; k < outPadding; k++)
-            {
-                fputc(0x00, outfile);
-            }
+            writeLine(outfile, bi.biWidth, resizeFactor, outPadding, linePixels);
         }
     }
 
     fclose(infile);
     fclose(outfile);
-    // TODO: return 0, this is useful to see output from Dispatch
-    return 1;
+
+    return 0;
+}
+
+void writeLine(FILE* outfile, int biWidth, int resizeFactor, int outPadding, RGBTRIPLE* linePixels)
+{
+    for (int i = 0; i < biWidth; i++)
+    {
+        for (int j = 0; j < resizeFactor; j++)
+        {
+            fwrite(&linePixels[i], sizeof(RGBTRIPLE), 1, outfile);
+        }
+    }
+
+    for (int i = 0; i < outPadding; i++)
+    {
+        fputc(0x00, outfile);
+    }
+}
+
+void readLine(FILE* infile, int biWidth, RGBTRIPLE* linePixels)
+{
+    for (int j = 0; j < biWidth; j++)
+    {
+        RGBTRIPLE triple;
+
+        fread(&triple, sizeof(RGBTRIPLE), 1, infile);
+
+        linePixels[j] = triple;
+    }
+}
+
+BITMAPINFOHEADER calculateResizedInfoHeader(BITMAPINFOHEADER* bi, int resizeFactor)
+{
+    BITMAPINFOHEADER out = *bi;
+
+    out.biWidth = bi->biWidth * resizeFactor;
+    out.biHeight = bi->biHeight * resizeFactor;
+
+    return out;
+}
+
+int getPadding(BITMAPINFOHEADER* bi)
+{
+    return (4 - (bi->biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
 }
