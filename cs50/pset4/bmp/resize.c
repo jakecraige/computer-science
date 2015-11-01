@@ -20,11 +20,17 @@ int main(int argc, char* argv[])
 {
     if (argc < 4)
     {
-        printf("Error: You must provide the new size, input and output file");
+        printf("Error: You must provide the new size, input and output file\n");
         return 1;
     }
 
     int resizeFactor = atoi(argv[1]);
+    if (resizeFactor < 1 || resizeFactor > 100)
+    {
+        printf("Error: Resize factor must be between 1 and 100 inclusive.\n");
+        return 1;
+    }
+
     FILE* infile = fopen(argv[2], "r");
     FILE* outfile = fopen(argv[3], "w");
 
