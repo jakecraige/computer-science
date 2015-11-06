@@ -10,7 +10,12 @@
     given character is a number it will also consume the rest because numbers aren't allowed.
 5.  TODO: Why fgetc and not fscanf? You can't be specific enough with fscanf?
 6.  It specifies to the user and compiler that these values shouldn't be changed.
-7.  TODO
-8.  TODO
-9.  TODO
-10. TODO
+7.  I used a hash table that's hashed by the sum of the first 20 characters. The
+    nodes are stored as a linked list so each node has a pointer to it's next node and a value.
+8.  The check was pretty slow because there were only 26 possible hashes so the linked lists
+    grew large and were slow to iterate over.
+9.  I extended the hashing method to have more possible outcomes which makes the
+    linked lists shorter so it takes less time to iterate over them.
+10. I think if I had a better hashing function it's possible the lookups would
+    be quicker since that's the bottleneck. I also could have implemented it as a
+    trie which would have had a more efficient lookup.
