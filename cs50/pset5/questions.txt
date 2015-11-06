@@ -1,10 +1,15 @@
-0.  TODO
-1.  TODO
-2.  TODO
-3.  TODO
-4.  TODO
-5.  TODO
-6.  TODO
+0.  It's a word that refers to a lung disease that's also the longest word in the dictionary.
+1.  Returns the resource usage of the given "who"
+2.  16
+3.  The struct is large and takes up a lot of memory so we don't want to incur the cost of copying that.
+4.  It iterates over the text a character at a time until it finds a full word. When it does, it runs
+    it through the spell checker and prints the result. It finds words by checking that the given
+    character is an alpha or an apostrophe not at the beginning of a word, if so, it stores that
+    character in the word string and increments the index. If the words is longer than the LENGTH
+    it consumes the rest of the word and resets the index to start looking for a new word. If the
+    given character is a number it will also consume the rest because numbers aren't allowed.
+5.  TODO: Why fgetc and not fscanf? You can't be specific enough with fscanf?
+6.  It specifies to the user and compiler that these values shouldn't be changed.
 7.  TODO
 8.  TODO
 9.  TODO
