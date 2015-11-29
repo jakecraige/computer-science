@@ -9,6 +9,8 @@
  * else if (load[t] == 1)  out[t+1] = in[t]
  * else if (inc[t] == 1)   out[t+1] = out[t] + 1  (integer addition)
  * else                    out[t+1] = out[t]
+ *
+ * register, incrementor, some logic gates
  */
 
 CHIP PC {
@@ -16,5 +18,16 @@ CHIP PC {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+    Or(a=load, b=inc, out=loadOrInc);
+    Or(a=loadOrInc, b=reset, out=doLoad);
+
+    Register(in=o3, load=doLoad, out=cur, out=out);
+
+    // if reset
+    Mux16(a=o2, b=false, sel=reset, out=o3);
+    // else if load
+    Mux16(a=o1, b=in, sel=load, out=o2);
+    // else if inc / else current value
+    Inc16(in=cur, out=incCur);
+    Mux16(a=cur, b=incCur, sel=inc, out=o1);
 }
