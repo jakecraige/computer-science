@@ -75,6 +75,14 @@ extension Instruction {
     }
 }
 
+func pad(string: String, size: Int, character: String = "0") -> String {
+    var padded = string
+    for _ in 0..<size - string.characters.count {
+        padded = character + padded
+    }
+    return padded
+}
+
 struct AInstruction: Instruction {
     let address: String
     let symbol: Bool
@@ -85,8 +93,9 @@ struct AInstruction: Instruction {
     }
 
     func toBinary() -> String {
-        // "0-000000000000001" // @1
-        return "0"
+        guard let numericAddress = Int(address) else { fatalError("Non-numeric address: \(address)") }
+        let binaryAddress = String(numericAddress, radix: 2)
+        return pad(binaryAddress, size: 16)
     }
 }
 
@@ -215,5 +224,5 @@ struct Parser {
 let parser = Parser(path: Process.arguments[1]);
 // print(parser.ast.instructions)
 for node in parser.ast.instructions {
-    print(node)
+    print("\(node.toBinary()): \(node)")
 }
