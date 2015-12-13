@@ -66,11 +66,11 @@ func trimWhitespaceAndComments(string: String) -> String {
 }
 
 protocol Instruction {
-    func toBinary() -> String
+    func toBinary(symbols: SymbolTable) -> String
 }
 
 extension Instruction {
-    func toBinary() -> String {
+    func toBinary(symbols: SymbolTable) -> String {
         return "0"
     }
 }
@@ -92,8 +92,14 @@ struct AInstruction: Instruction {
         self.symbol = Int(address) == .None
     }
 
-    func toBinary() -> String {
-        guard let numericAddress = Int(address) else { fatalError("Non-numeric address: \(address)") }
+    func toBinary(symbols: SymbolTable) -> String {
+        let numericAddress: Int
+        if symbol {
+            numericAddress = symbols[address]!
+        } else {
+            numericAddress = Int(address)!
+        }
+
         let binaryAddress = String(numericAddress, radix: 2)
         return pad(binaryAddress, size: 16)
     }
@@ -114,7 +120,7 @@ struct CInstruction: Instruction {
         self.jump = jmpParts[safe: 1]
     }
 
-    func toBinary() -> String {
+    func toBinary(symbols: SymbolTable) -> String {
         // "1-awholeslewofthings"
         return "0"
     }
@@ -219,10 +225,13 @@ struct Parser {
         self.ast = AST(path: path)
         self.symbolTable = createSymbolTable(self.ast)
     }
+
+    func debugPrint() {
+        for node in parser.ast.instructions {
+            print("\(node.toBinary(symbolTable)): \(node)")
+        }
+    }
 }
 
 let parser = Parser(path: Process.arguments[1]);
-// print(parser.ast.instructions)
-for node in parser.ast.instructions {
-    print("\(node.toBinary()): \(node)")
-}
+ parser.debugPrint()
