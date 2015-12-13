@@ -37,12 +37,62 @@ let defaultSymbols: SymbolTable = [
     "END": 22,
 ]
 
+let jumpTable = [
+    "JGT": "001",
+    "JEQ": "010",
+    "JGE": "011",
+    "JLT": "100",
+    "JNE": "101",
+    "JLE": "110",
+    "JMP": "111",
+]
+
+let destTable = [
+    "M"  : "001",
+    "D"  : "010",
+    "MD" : "011",
+    "A"  : "100",
+    "AM" : "101",
+    "AD" : "110",
+    "AMD": "111",
+]
+
+let compTable = [
+    // a=0
+    "0"  : "0101010",
+    "1"  : "0111111",
+    "-1" : "0111010",
+    "D"  : "0001100",
+    "A"  : "0110000",
+    "!D" : "0001101",
+    "!A" : "0110001",
+    "-D" : "0001111",
+    "-A" : "0110011",
+    "D+1": "0011111",
+    "A+1": "0110111",
+    "D-1": "0001110",
+    "A-1": "0110010",
+    "D+A": "0000010",
+    "D-A": "0010011",
+    "A-D": "0000111",
+    "D&A": "0000000",
+    "D|A": "0010101",
+
+    // a=0
+    "M"  : "1110000",
+    "!M" : "1110001",
+    "-M" : "1110011",
+    "M+1": "1110111",
+    "M-1": "1110010",
+    "D+M": "1000010",
+    "D-M": "1010011",
+    "M-D": "1000111",
+    "D&M": "1000000",
+    "D|M": "1010101",
+]
+
 func lineIsAInstruction(line: String) -> Bool {
     return line.hasPrefix("@")
-}
-
-func lineIsCInstruction(line: String) -> Bool {
-    return false
 }
 
 func lineIsLabel(line: String) -> Bool {
@@ -121,8 +171,11 @@ struct CInstruction: Instruction {
     }
 
     func toBinary(symbols: SymbolTable) -> String {
-        // "1-awholeslewofthings"
-        return "0"
+        let compBinary = compTable[comp] ?? "0000000"
+        let destBinary = destTable[dest] ?? "000"
+        let jumpBinary = jumpTable[jump ?? ""] ?? "000"
+
+        return "111\(compBinary)\(destBinary)\(jumpBinary)"
     }
 }
 
@@ -227,11 +280,23 @@ struct Parser {
     }
 
     func debugPrint() {
-        for node in parser.ast.instructions {
+        for node in ast.instructions {
             print("\(node.toBinary(symbolTable)): \(node)")
         }
+    }
+
+    func writeBinaryToPath(path: String) throws {
+        let binaryInstructions = ast.instructions.map { $0.toBinary(self.symbolTable) }
+        let instructions = binaryInstructions.joinWithSeparator("\n") + "\n"
+        try instructions.writeToFile(path, atomically: true, encoding: NSUTF8StringEncoding)
     }
 }
 
 let parser = Parser(path: Process.arguments[1]);
- parser.debugPrint()
+do {
+   let path = "a.out"
+   try parser.writeBinaryToPath(path)
+   print("Output written to: \(path)")
+} catch {
+    print("Error writing file: \(error)")
+}
