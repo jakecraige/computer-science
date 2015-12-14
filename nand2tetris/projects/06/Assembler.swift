@@ -157,22 +157,34 @@ struct AInstruction: Instruction {
 
 // this needs to include the jump
 struct CInstruction: Instruction {
-    let dest: String
+    let dest: String?
     let comp: String
     let jump: String?
 
     init(line: String) {
-        let jmpParts = line.componentsSeparatedByString(";")
-        let destParts = jmpParts[0].componentsSeparatedByString("=")
+        let regex = try! NSRegularExpression(pattern: "^([A-Z]*)=?(.{1,3})(?:;(.*))?$", options: [])
+        let match = regex.firstMatchInString(line, options: [], range: NSMakeRange(0, line.characters.count))
 
-        self.dest = destParts[0]
-        self.comp = destParts[safe: 1] ?? jmpParts[0]
-        self.jump = jmpParts[safe: 1]
+        var dict: [String: String] = [:]
+        for idx in 1...3 {
+            guard let range = match?.rangeAtIndex(idx) else { continue }
+            guard range.location != NSNotFound else { continue }
+            let substring = (line as NSString).substringWithRange(range)
+            switch idx {
+                case 1: dict["dest"] = substring
+                case 2: dict["comp"] = substring
+                case 3: dict["jump"] = substring
+                default: continue
+            }
+        }
+        self.dest = dict["dest"]
+        self.comp = dict["comp"]!
+        self.jump = dict["jump"]
     }
 
     func toBinary(symbols: SymbolTable) -> String {
         let compBinary = compTable[comp] ?? "0000000"
-        let destBinary = destTable[dest] ?? "000"
+        let destBinary = destTable[dest ?? ""] ?? "000"
         let jumpBinary = jumpTable[jump ?? ""] ?? "000"
 
         return "111\(compBinary)\(destBinary)\(jumpBinary)"
@@ -231,7 +243,7 @@ func populateLabels(ast: AST, symbols: SymbolTable) -> SymbolTable {
     for (i, line) in ast.lines.enumerate() {
         guard let label  = line as? Label else { continue }
 
-        table[label.name] = i + 1 - labelsFound
+        table[label.name] = i - labelsFound
         labelsFound += 1
     }
 
@@ -292,11 +304,19 @@ struct Parser {
     }
 }
 
+if Process.arguments.count < 2 {
+    print("Error: You must pass in a path of .asm file to assemble.")
+    print("Usage: swift Assembler.swift path/to/file.asm")
+    exit(1)
+}
+
 let parser = Parser(path: Process.arguments[1]);
 do {
-   let path = "a.out"
-   try parser.writeBinaryToPath(path)
-   print("Output written to: \(path)")
+    let path = "a.hack"
+    try parser.writeBinaryToPath(path)
+    print("Output written to: \(path)")
+    exit(0)
 } catch {
     print("Error writing file: \(error)")
+    exit(1)
 }
